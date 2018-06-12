@@ -3,7 +3,6 @@
 #include "Population.h"
 #include "Helpers.h"
 
-
 Strategy cross(Strategy* a, Strategy* b) {
 	Strategy c = Strategy_();
 
@@ -22,7 +21,7 @@ Strategy cross(Strategy* a, Strategy* b) {
 void mutate(Strategy* individual) {
 	Play plays[] = { STAY, HIT, DOUBLE_DOWN, SPLIT };
 
-	Int numPlays = sizeof(plays) / sizeof(Int);
+	int numPlays = sizeof(plays) / sizeof(int);
 
 	for (int index = 0; index < NUMBER_RULES; index++) {
 
@@ -31,7 +30,7 @@ void mutate(Strategy* individual) {
 		if (lottery > MUTATION_RATE)
 			continue;
 
-		Int ran = random(0, numPlays - 1);
+		int ran = random(0, numPlays - 1);
 
 		Play allele = plays[ran];
 
@@ -67,7 +66,7 @@ Strategy* getFittest(Strategy** individuals) {
 Strategy* getFittest(Population* population) {
 	Strategy* fittest = &population->individuals[0];
 
-	for (Int index = 1; index < population->size; index++)
+	for (int index = 1; index < population->size; index++)
 		if (population->individuals[index].pl > fittest->pl)
 			fittest = &population->individuals[index];
 

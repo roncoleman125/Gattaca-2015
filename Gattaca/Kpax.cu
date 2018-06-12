@@ -20,7 +20,7 @@ blk      pl hands     wins      blackjack charlies  loses     busts     dealerbj
 #include "Helpers.h"
 #include "Kpax.h"
 
-typedef unsigned int Int;
+#define ACE_AS_11 10
 
 __device__ int random(int min, int max, curandState_t* state) {
 
@@ -34,7 +34,7 @@ __device__ Card Card_(Rank rank, Suit suit) {
 }
 
 ///////////////// Card
-__device__ Card Card_(Int rank, Suit suit) {
+__device__ Card Card_(int rank, Suit suit) {
 	Card card = { (Rank)rank, suit };
 	return card;
 }
@@ -42,7 +42,7 @@ __device__ Card Card_(Int rank, Suit suit) {
 __device__ Suit randomSuit(curandState_t* state) {
 	Suit suits[] = { HEARTS, SPADES, DIAMONDS, CLUBS };
 
-	Int index = random(0, 3, state);
+	int index = random(0, 3, state);
 
 	return suits[index];
 }
@@ -105,21 +105,21 @@ __device__ Hand Hand_(void* player, curandState_t* state) {
 }
 
 __device__ Card hit(Player* player) {
-	Int sz = player->size;
+	int sz = player->size;
 
 	return hit(player, sz - 1);
 }
 
-__device__ Card hit(Player* player, Int handno) {
+__device__ Card hit(Player* player, int handno) {
 	return hit(&player->hands[handno]);
 }
 
-__device__ Int score(Hand* hand) {
-	Int sum = 0;
+__device__ int score(Hand* hand) {
+	int sum = 0;
 
-	Int nAces = 0;
+	int nAces = 0;
 
-	for (Int k = 0; k < hand->size; k++) {
+	for (int k = 0; k < hand->size; k++) {
 		Card card = hand->cards[k];
 		sum += isFace(&hand->cards[k]) ? 10 : hand->cards[k].rank;
 
@@ -129,7 +129,7 @@ __device__ Int score(Hand* hand) {
 	}
 
 	// Account for soft aces
-	for (Int k = 0; k < nAces; k++) {
+	for (int k = 0; k < nAces; k++) {
 		if (sum + ACE_AS_11 > 21)
 			break;
 
@@ -139,7 +139,7 @@ __device__ Int score(Hand* hand) {
 	return sum;
 }
 
-__device__ bool isBusted(Hand* hand) {
+__device__ bool isBroke(Hand* hand) {
 	return hand->value > 21;
 }
 
@@ -166,7 +166,7 @@ __device__ Card hit(Hand* hand) {
 }
 
 __device__ void hit(Hand* hand, Card* card) {
-	Int index = hand->size++;
+	int index = hand->size++;
 
 	hand->cards[index] = *card;
 
@@ -324,16 +324,16 @@ __host__ __device__ Strategy BasicStrategy_() {
 __device__ Play doSection4(Hand* hand, Card* upcard, Strategy* strategy) {
 	Card card1 = hand->cards[0];
 
-	Int offset = 0;
+	int offset = 0;
 
 	if (!isAce(&card1))
 		offset = KING - card1.rank + 1;
 
-	Int row = strategy->jumpTab[SECTION4].lower + offset;
+	int row = strategy->dispatches[SECTION4].lower + offset;
 
-	Int col = isAce(upcard) ? 9 : RANK(upcard->rank) - 2;
+	int col = isAce(upcard) ? 9 : RANK(upcard->rank) - 2;
 
-	Int index = row * 10 + col;
+	int index = row * 10 + col;
 
 	Play play = strategy->rules[index];
 
@@ -348,13 +348,13 @@ __device__ Play doSection3(Hand* hand, Card* upcard, Strategy* strategy) {
 	if (card1.rank == ACE)
 		card = card2;
 
-	Int offset = KING - card.rank;
+	int offset = KING - card.rank;
 
-	Int row = strategy->jumpTab[SECTION3].lower + offset;
+	int row = strategy->dispatches[SECTION3].lower + offset;
 
-	Int col = isAce(upcard) ? 9 : RANK(upcard->rank) - 2;
+	int col = isAce(upcard) ? 9 : RANK(upcard->rank) - 2;
 
-	Int index = row * 10 + col;
+	int index = row * 10 + col;
 
 	Play play = strategy->rules[index];
 
@@ -362,13 +362,13 @@ __device__ Play doSection3(Hand* hand, Card* upcard, Strategy* strategy) {
 }
 
 __device__ Play doSection2(Hand* hand, Card* upcard, Strategy* strategy) {
-	Int offset = 11 - hand->value;
+	int offset = 11 - hand->value;
 
-	Int row = strategy->jumpTab[SECTION2].lower + offset;
+	int row = strategy->dispatches[SECTION2].lower + offset;
 
-	Int col = isAce(upcard) ? 9 : RANK(upcard->rank) - 2;
+	int col = isAce(upcard) ? 9 : RANK(upcard->rank) - 2;
 
-	Int index = row * 10 + col;
+	int index = row * 10 + col;
 
 	Play play = strategy->rules[index];
 
@@ -380,13 +380,13 @@ __device__ Play doSection2(Hand* hand, Card* upcard, Strategy* strategy) {
 }
 
 __device__ Play doSection1(Hand* hand, Card* upcard, Strategy* strategy) {
-	Int offset = 21 - hand->value;
+	int offset = 21 - hand->value;
 
-	Int row = strategy->jumpTab[SECTION1].lower + offset;
+	int row = strategy->dispatches[SECTION1].lower + offset;
 
-	Int col = isAce(upcard) ? 9 : RANK(upcard->rank) - 2;
+	int col = isAce(upcard) ? 9 : RANK(upcard->rank) - 2;
 
-	Int index = row * 10 + col;
+	int index = row * 10 + col;
 
 	Play play = strategy->rules[index];
 
@@ -411,8 +411,8 @@ __device__ void init(Player* player) {
 	player->hands[0].player = player;
 }
 
-__device__ Int add(Player* player, Hand* hand) {
-	Int index = player->size++;
+__device__ int add(Player* player, Hand* hand) {
+	int index = player->size++;
 
 	hand->player = player;
 
@@ -473,7 +473,7 @@ __device__ void playout(Hand* hand, Card* upcard) {
 	Play play = getPlay(hand, upcard);
 
 	Player* player = (Player*)hand->player;
-	player->strategy->plays[play]++;
+	player->strategy->visits[play]++;
 
 	switch (play) {
 	case NO_PLAY:
@@ -485,7 +485,7 @@ __device__ void playout(Hand* hand, Card* upcard) {
 	case HIT:
 		hit(hand);
 
-		if (isBusted(hand) || isBlackjack(hand))
+		if (isBroke(hand) || isBlackjack(hand))
 			return;
 		/*
 		if (isCharlie(hand))
@@ -543,7 +543,7 @@ __device__ void split(Hand* hand1, Card* upcard) {
 	hit(&newHand);
 
 	// Add 2nd hand to the player
-	Int index = add(player, &newHand);
+	int index = add(player, &newHand);
 
 	Hand* hand2 = &player->hands[index];
 
@@ -578,7 +578,7 @@ __device__ void splitback(Hand* hand, Card* upcard) {
 	case HIT:
 		hit(hand);
 
-		if (!isBusted(hand))
+		if (!isBroke(hand))
 			playout(hand, upcard);
 
 		break;
@@ -614,7 +614,7 @@ __device__ void play(Hand* dealer, Player* player, Game* statistics) {
 		//assert(hand->bet > 0);
 		//assert(hand->player == player);
 
-		if (isBusted(hand)) {
+		if (isBroke(hand)) {
 			player->pl -= hand->bet;
 
 			statistics->count[BUSTS]++;
@@ -662,7 +662,7 @@ __device__ void play(Hand* dealer, Player* player, Game* statistics) {
 			/*assert(hand->size == 3)*/;
 
 		// We've handle these above
-		if (isBusted(hand) || isBlackjack(player, hand))
+		if (isBroke(hand) || isBlackjack(player, hand))
 			continue;
 
 		// Dealer blackjack beats all except player blackjack and charlie
@@ -672,7 +672,7 @@ __device__ void play(Hand* dealer, Player* player, Game* statistics) {
 		}
 
 		// If dealer broke, pay the player
-		else if (isBusted(dealer)) {
+		else if (isBroke(dealer)) {
 			player->pl += hand->bet;
 			statistics->count[WINS]++;
 		}
@@ -719,7 +719,7 @@ __device__ Play getPlay(Hand* hand, Card* upcard) {
 	return play1;
 
 	/*
-	Int dealer = isFace(upcard) ? 10 : upcard->rank;
+	int dealer = isFace(upcard) ? 10 : upcard->rank;
 
 	if (dealer == ACE)
 	dealer += ACE_AS_11;

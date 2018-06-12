@@ -5,8 +5,8 @@
 #define ELITIST true
 
 typedef struct {
-	Int size;
-	Int fittest;
+	int size;
+	int fittest;
 	Strategy individuals[POPULATION_SIZE];
 } Population;
 

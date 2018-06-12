@@ -34,19 +34,19 @@ void report(Strategy* strategies, Game* statistics, int numCores) {
 	printf("%3s %9s %9s %9s %9s %9s %9s\n", "blk", "plays", "none", "stays", "hits", "doubles", "splits");
 	for (int blk = 0; blk < numCores; blk++) {
 		int numPlays =
-			strategies[blk].plays[NO_PLAY] +
-			strategies[blk].plays[STAY] +
-			strategies[blk].plays[HIT] +
-			strategies[blk].plays[DOUBLE_DOWN] +
-			strategies[blk].plays[SPLIT];
+			strategies[blk].visits[NO_PLAY] +
+			strategies[blk].visits[STAY] +
+			strategies[blk].visits[HIT] +
+			strategies[blk].visits[DOUBLE_DOWN] +
+			strategies[blk].visits[SPLIT];
 
 		printf("%3d %9d %9d %9d %9d %9d %9d\n",
 			blk, numPlays,
-			strategies[blk].plays[NO_PLAY],
-			strategies[blk].plays[STAY],
-			strategies[blk].plays[HIT],
-			strategies[blk].plays[DOUBLE_DOWN],
-			strategies[blk].plays[SPLIT]
+			strategies[blk].visits[NO_PLAY],
+			strategies[blk].visits[STAY],
+			strategies[blk].visits[HIT],
+			strategies[blk].visits[DOUBLE_DOWN],
+			strategies[blk].visits[SPLIT]
 		);
 	}
 }
