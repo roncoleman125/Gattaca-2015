@@ -329,7 +329,7 @@ __device__ Play doSection4(Hand* hand, Card* upcard, Strategy* strategy) {
 	if (!isAce(&card1))
 		offset = KING - card1.rank + 1;
 
-	int row = strategy->dispatches[SECTION4].lower + offset;
+	int row = strategy->jumpTab[SECTION4].lower + offset;
 
 	int col = isAce(upcard) ? 9 : RANK(upcard->rank) - 2;
 
@@ -350,7 +350,7 @@ __device__ Play doSection3(Hand* hand, Card* upcard, Strategy* strategy) {
 
 	int offset = KING - card.rank;
 
-	int row = strategy->dispatches[SECTION3].lower + offset;
+	int row = strategy->jumpTab[SECTION3].lower + offset;
 
 	int col = isAce(upcard) ? 9 : RANK(upcard->rank) - 2;
 
@@ -364,7 +364,7 @@ __device__ Play doSection3(Hand* hand, Card* upcard, Strategy* strategy) {
 __device__ Play doSection2(Hand* hand, Card* upcard, Strategy* strategy) {
 	int offset = 11 - hand->value;
 
-	int row = strategy->dispatches[SECTION2].lower + offset;
+	int row = strategy->jumpTab[SECTION2].lower + offset;
 
 	int col = isAce(upcard) ? 9 : RANK(upcard->rank) - 2;
 
@@ -382,7 +382,7 @@ __device__ Play doSection2(Hand* hand, Card* upcard, Strategy* strategy) {
 __device__ Play doSection1(Hand* hand, Card* upcard, Strategy* strategy) {
 	int offset = 21 - hand->value;
 
-	int row = strategy->dispatches[SECTION1].lower + offset;
+	int row = strategy->jumpTab[SECTION1].lower + offset;
 
 	int col = isAce(upcard) ? 9 : RANK(upcard->rank) - 2;
 

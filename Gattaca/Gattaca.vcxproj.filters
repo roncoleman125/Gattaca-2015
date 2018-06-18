@@ -28,6 +28,9 @@
     <Filter Include="K-PAX\CU">
       <UniqueIdentifier>{a818546e-abff-420c-b3a9-6be4c2839a20}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Units">
+      <UniqueIdentifier>{e8160753-c02f-4ab9-93f5-3dd3261159dc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GA.h">
@@ -68,11 +71,14 @@
     <ClCompile Include="Population.cpp">
       <Filter>GA\CPP</Filter>
     </ClCompile>
-    <ClCompile Include="Main.cpp">
-      <Filter>K-PAX\CPP</Filter>
-    </ClCompile>
     <ClCompile Include="Helpers.cpp">
       <Filter>K-PAX\CPP</Filter>
+    </ClCompile>
+    <ClCompile Include="Main.cpp">
+      <Filter>Units</Filter>
+    </ClCompile>
+    <ClCompile Include="Test00.cpp">
+      <Filter>Units</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

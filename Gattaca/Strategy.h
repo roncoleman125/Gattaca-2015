@@ -60,13 +60,13 @@ typedef enum {
 #define X NO_PLAY
 
 /*!
-  \enum Entry
-  \brief Dispatch lookaside table entry
+  \enum Lookaside
+  \brief Jump lookaside table entry
 */
 typedef struct {
 	int lower;    /**< Lower or starting index */
 	int upper;    /**< Upper or ending (inclusive) index */
-} Dispatch;
+} Lookaside;
 
 
 /*!
@@ -77,21 +77,22 @@ typedef struct {
 typedef struct {
 	float pl;                  /**< P&L */
 	Play rules[NUMBER_RULES];  /**< Rules */
-	Dispatch dispatches[4];    /**< Dispatch table */
+	Lookaside jumpTab[4];      /**< Jump table */
 	int visits[5];             /**< Play visit record indexed by STAY, HIT, etc. */
 } Strategy;
+
+
+/*!
+\brief Basic strategy constructor
+Makes a default, "no play" strategy
+*/
+__host__ __device__ Strategy Strategy_(void);
 
 /*!
   \brief Basic strategy constructor
   Makes a basic strategy from Instructional Services (1983, 2000)
 */
 __host__ __device__ Strategy BasicStrategy_(void);
-
-/*!
-  \brief Basic strategy constructor
-  Makes a default, "no play" strategy
-*/
-__host__ __device__ Strategy Strategy_(void);
 
 /*!
   \brief Does section IV of strategy
