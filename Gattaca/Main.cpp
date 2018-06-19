@@ -2,10 +2,16 @@
 
 
 void test00(void);
+void test01(void);
+void test02(void);
 
 int main(int argc, char** argv) {
 	void(*tests[])(void) = {
-		test00
+		/*
+		test00,
+		test01,
+		*/
+		test02
 	};
 
 	int n = sizeof(tests) / sizeof(void*);

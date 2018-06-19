@@ -1,12 +1,25 @@
 /*
+Copyright (c) Ron Coleman
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
 
-blk      pl hands     wins      blackjack charlies  loses     busts     dealerbjs pushes    none      stays     hits      doubles   splits
-0  0.600000 10        7         0         0         0         3         0         0         0         5         9         2         0
-1  0.363636 11        5         2         0         1         1         1         1         0         9         2         1         1
-2  0.300000 10        6         0         0         3         0         1         0         0         9         5         1         0
-3 -0.100000 10        4         0         0         0         5         0         1         0         5         7         0         0
-4 -0.200000 10        3         2         0         3         1         1         0         0         6         2         3         0
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
+
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 #include <stdio.h>
@@ -28,12 +41,14 @@ __device__ int random(int min, int max, curandState_t* state) {
 	return (curand(state) % (max + 1 - min)) + min;
 }
 
+
+///////////////// Card
+
 __device__ Card Card_(Rank rank, Suit suit) {
 	Card card = { rank, suit };
 	return card;
 }
 
-///////////////// Card
 __device__ Card Card_(int rank, Suit suit) {
 	Card card = { (Rank)rank, suit };
 	return card;
@@ -496,11 +511,9 @@ __device__ void playout(Hand* hand, Card* upcard) {
 		break;
 
 	case DOUBLE_DOWN:
-		//assert(hand->size == 2);
-
+		// Double bet and hit once
 		hand->bet *= 2.0;
 
-		// hit(hand, upcard);
 		hit(hand);
 		break;
 
@@ -513,7 +526,7 @@ __device__ void playout(Hand* hand, Card* upcard) {
 }
 
 __device__ void split(Hand* hand1, Card* upcard) {
-	// If there's a split overflow, fallback to nonn-split
+	// If there's a split overflow, fallback to non-split
 	Player* player = (Player*)hand1->player;
 
 	if (player->size >= MAX_YOUR_HANDS) {
@@ -522,6 +535,7 @@ __device__ void split(Hand* hand1, Card* upcard) {
 	}
 
 	// Allow splitting Aces once and hit each Ace once without playthrough.
+	// TODO: look up whether double-down allowed on split hand
 	bool playThrough = true;
 
 	if (isPair(hand1) && hand1->cards[0].rank == ACE)
@@ -592,8 +606,6 @@ __device__ void splitback(Hand* hand, Card* upcard) {
 
 	case SPLIT:
 		// A split here is tantamount to STAY
-		//		assert(false);
-
 		break;
 
 	case NO_PLAY:
@@ -610,9 +622,6 @@ __device__ void play(Hand* dealer, Player* player, Game* statistics) {
 	// Payout the hands we can at this point...
 	for (int index = 0; index < player->size; index++) {
 		Hand* hand = &player->hands[index];
-
-		//assert(hand->bet > 0);
-		//assert(hand->player == player);
 
 		if (isBroke(hand)) {
 			player->pl -= hand->bet;
@@ -645,7 +654,7 @@ __device__ void play(Hand* dealer, Player* player, Game* statistics) {
 	if (remaining == 0)
 		return;
 
-	// Dealer stands on 17 or higher (soft or otherwise)
+	// Dealer stands on (soft or otherwise) 17 or higher 
 	while (dealer->value < 17) {
 		hit(dealer);
 	}
@@ -653,13 +662,6 @@ __device__ void play(Hand* dealer, Player* player, Game* statistics) {
 	// Test all the remaining hands
 	for (int index = 0; index < player->size; index++) {
 		Hand* hand = &player->hands[index];
-
-		// Validate hand played through
-		//assert(hand->size >= 2);
-
-		// Validate double-down
-		if (hand->bet == 2)
-			/*assert(hand->size == 3)*/;
 
 		// We've handle these above
 		if (isBroke(hand) || isBlackjack(player, hand))
@@ -694,8 +696,8 @@ __device__ void play(Hand* dealer, Player* player, Game* statistics) {
 			player->pl += 0;
 			statistics->count[PUSHES]++;
 		}
-		else // No other condidtions apply
-			/*assert(false)*/;
+		else
+			/* DO NOTHING */ ;
 	}
 }
 
@@ -718,31 +720,32 @@ __device__ Play getPlay(Hand* hand, Card* upcard) {
 
 	return play1;
 
+	// Commented code below left for debugging only.
 	/*
 	int dealer = isFace(upcard) ? 10 : upcard->rank;
 
 	if (dealer == ACE)
-	dealer += ACE_AS_11;
+		dealer += ACE_AS_11;
 
 	Play play2 = NO_PLAY;
 
 	if (isPair(hand) && (hand->cards[0].rank == ACE || hand->cards[0].rank == EIGHT))
-	play2 = SPLIT;
+		play2 = SPLIT;
 
 	else if (hand->value == 11 && hand->size == 2)
-	play2 = DOUBLE_DOWN;
+		play2 = DOUBLE_DOWN;
 
 	else if (hand->value <= 10)
-	play2 = HIT;
+		play2 = HIT;
 
 	else if (hand->value >= 17)
-	play2 = STAY;
+		play2 = STAY;
 
 	else if (hand->value <= 16 && dealer <= 6)
-	play2 = STAY;
+		play2 = STAY;
 
 	else if (hand->value <= 16 && dealer > 6)
-	play2 = HIT;
+		play2 = HIT;
 
 	//else
 		//assert(false);
@@ -761,8 +764,8 @@ __device__ Game go(int ngames, Strategy* strategy, curandState_t* state) {
 	return statistics;
 }
 
-#include <curand.h>
-#include <curand_kernel.h>
+
+/////////////// See http://cs.umw.edu/~finlayson/class/fall16/cpsc425/notes/cuda-random.html
 
 /* this GPU kernel function is used to initialize the random states */
 __global__ void init(unsigned int seed, curandState_t* states) {
@@ -779,6 +782,8 @@ __global__ void init(unsigned int seed, curandState_t* states) {
 __global__ void run(unsigned int* numGames, Strategy* strategies, Game* statistics, curandState_t* states) {
 	statistics[blockIdx.x] = go(*numGames, &strategies[blockIdx.x], &states[blockIdx.x]);
 }
+
+/////////////// GPU driver
 
  int evaluate(int numStrategies, Strategy* strategies, int numGames, Game* statistics) {
 	try {

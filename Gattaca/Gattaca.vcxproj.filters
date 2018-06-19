@@ -80,6 +80,12 @@
     <ClCompile Include="Test00.cpp">
       <Filter>Units</Filter>
     </ClCompile>
+    <ClCompile Include="Test01.cpp">
+      <Filter>Units</Filter>
+    </ClCompile>
+    <ClCompile Include="Test02.cpp">
+      <Filter>Units</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="Kpax.cu">

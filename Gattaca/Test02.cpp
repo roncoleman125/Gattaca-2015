@@ -21,23 +21,21 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
 /*
-running tests: 1
-test 00:
-blk        pl     hands      wins blackjack  charlies     loses     busts dealerbjs    pushes
-  0  0.600000        10         7         0         0         0         3         0         0
-  1  0.363636        11         5         2         0         1         1         1         1
-  2  0.300000        10         6         0         0         3         0         1         0
-  3 -0.100000        10         4         0         0         0         5         0         1
-  4 -0.200000        10         3         2         0         3         1         1         0
+blk        pl     hands      wins blackjack  charlies     loses    breaks      dbjs    pushes
+  0  0.035437      1030       408        49         0       285       156        34        98
+  1 -0.006737      1039       400        50         0       279       177        45        88
+  2  0.014947      1037       424        47         0       287       174        32        73
+  3 -0.008252      1030       406        43         0       270       187        32        92
+  4  0.004873      1026       410        48         0       282       162        28        96
 
 blk     plays      none     stays      hits   doubles    splits
-  0        16         0         5         9         2         0
-  1        13         0         9         2         1         1
-  2        15         0         9         5         1         0
-  3        12         0         5         7         0         0
-  4        11         0         6         2         3         0
-
+  0      1462         0       760       570       102        30
+  1      1476         0       749       585       103        39
+  2      1485         0       744       601       103        37
+  3      1504         0       735       643        96        30
+  4      1454         0       751       574       103        26
 */
+
 #include <stdio.h>
 #include "Strategy.h"
 #include "Game.h"
@@ -45,9 +43,9 @@ blk     plays      none     stays      hits   doubles    splits
 #include "Helpers.h"
 
 #define NUM_STRATEGIES 5
-#define NUM_GAMES 10
+#define NUM_GAMES 1000
 
-void test00(void) {
+void test02(void) {
 
 	Strategy strategies[NUM_STRATEGIES];
 
